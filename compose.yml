@@ -1,0 +1,44 @@
+services:
+  grafana-lgtm:
+    image: 'grafana/otel-lgtm:latest'
+    ports:
+      - '3000:3000'
+      - '4317:4317'
+      - '4318:4318'
+  ollama:
+    image: dashaun/testcontainer-ollama-qwen2.5-coder_1.5b:latest
+    container_name: workshop-ollama
+    ports:
+      - "11434:11434"
+    environment:
+      # Keep a model in memory for four hours after its last request.
+      OLLAMA_KEEP_ALIVE: 4h
+    volumes:
+      - ollama-models:/root/.ollama
+    restart: unless-stopped
+    healthcheck:
+      # The image has no curl/wget, so use the ollama CLI which talks to the local API.
+      test: ["CMD", "ollama", "list"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+  redis:
+    image: redis/redis-stack:latest
+    container_name: workshop-redis
+    ports:
+      - "6379:6379"   # Redis
+      - "8001:8001"   # RedisInsight UI
+    volumes:
+      - redis-data:/data
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  ollama-models:
+    driver: local
+  redis-data:
+    driver: local

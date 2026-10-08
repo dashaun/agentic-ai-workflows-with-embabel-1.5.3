@@ -1,0 +1,7 @@
+# Enable auto-env through the sdkman_auto_env function
+# Add the following to your ~/.bashrc, ~/.zshrc *etc*
+# Then running `sdk_auto_env` enables auto selection of java & maven required for this project
+
+# sdkmanrc
+java=25.0.3-librca
+maven=3.9.9

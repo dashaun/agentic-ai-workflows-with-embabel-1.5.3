@@ -2,6 +2,7 @@ package com.embabel.demo.sre;
 
 import com.embabel.demo.domain.DockerComposeStatus;
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.MappingIterator;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.stereotype.Service;
 
@@ -55,17 +56,22 @@ public class DockerComposeService {
         return output;
     }
 
-    private List<DockerComposeStatus> parseStatuses(String output) throws IOException {
+    List<DockerComposeStatus> parseStatuses(String output) throws IOException {
         if (output.isBlank()) {
             return List.of();
         }
 
-        JsonNode json = objectMapper.readTree(output);
+        // Older Compose versions print one JSON array; Compose 2.21+ prints one JSON object per line.
         List<DockerComposeStatus> statuses = new ArrayList<>();
-        if (json.isArray()) {
-            json.forEach(node -> statuses.add(toStatus(node)));
-        } else {
-            statuses.add(toStatus(json));
+        try (MappingIterator<JsonNode> values = objectMapper.readerFor(JsonNode.class).readValues(output)) {
+            while (values.hasNext()) {
+                JsonNode json = values.next();
+                if (json.isArray()) {
+                    json.forEach(node -> statuses.add(toStatus(node)));
+                } else {
+                    statuses.add(toStatus(json));
+                }
+            }
         }
         return statuses;
     }

@@ -8,140 +8,334 @@
 
     <link rel="stylesheet" href="./reveal.js/dist/reset.css">
     <link rel="stylesheet" href="./reveal.js/dist/reveal.css">
-    <link rel="stylesheet" href="./reveal.js/dist/theme/simple.css">
+    <link rel="stylesheet" href="./css/simple-offline.css">
     <link rel="stylesheet" href="./reveal.js/dist/plugin/highlight/monokai.css">
 
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:ital,wght@0,400;0,600;0,700;1,400&family=Work+Sans:wght@400;700&display=swap" rel="stylesheet">
 
     <style>
+        /* Fonts are bundled in docs/fonts so the deck renders identically without venue Wi-Fi. */
+        @font-face {
+            font-family: 'Open Sans';
+            font-style: normal;
+            font-weight: 300 800;
+            font-display: swap;
+            src: url('fonts/open-sans-latin.woff2') format('woff2');
+        }
+        @font-face {
+            font-family: 'Open Sans';
+            font-style: italic;
+            font-weight: 300 800;
+            font-display: swap;
+            src: url('fonts/open-sans-italic-latin.woff2') format('woff2');
+        }
+        @font-face {
+            font-family: 'JetBrains Mono';
+            font-style: normal;
+            font-weight: 400;
+            font-display: swap;
+            src: url('fonts/jetbrains-mono-Regular.woff2') format('woff2');
+        }
+        @font-face {
+            font-family: 'JetBrains Mono';
+            font-style: normal;
+            font-weight: 700;
+            font-display: swap;
+            src: url('fonts/jetbrains-mono-Bold.woff2') format('woff2');
+        }
+        @font-face {
+            font-family: 'Work Sans';
+            font-style: normal;
+            font-weight: 100 900;
+            font-display: swap;
+            src: url('fonts/work-sans-latin.woff2') format('woff2');
+        }
+
         :root {
             --spring-green: #6db33f;
-            --spring-green-light: #80ea6e;
+            --spring-green-ink: #3a7d1e;      /* green text on white: 5.1:1 */
             --spring-dark: #191e1e;
             --spring-text: #4a4a4a;
-            --spring-heading: #111;
+            --spring-heading: #111;           /* text on Spring green: 7.4:1 */
             --spring-border: #ebf2f2;
             --spring-border-medium: #d9e9e9;
-            --spring-link: #6db33f;
-            --spring-muted: #7a7a7a;
+            --spring-tint: #f4f9f0;
+            --spring-muted: #5c5c5c;
+            --inline-code-text: #2d6b16;      /* on --inline-code-bg: 5.9:1 */
+            --inline-code-bg: #eef6ea;
+            --code-text: #f8f8f2;
+            --code-annotation: #8fd16a;       /* @Agent, @Action on --spring-dark: 9.2:1 */
+            --code-comment: #9e9b85;          /* on --spring-dark: 6.0:1 */
         }
 
         .reveal {
-            font-family: 'Open Sans', BlinkMacSystemFont, -apple-system, sans-serif;
+            font-family: 'Open Sans', BlinkMacSystemFont, -apple-system, 'Segoe UI', sans-serif;
             font-size: 28px;
             color: var(--spring-text);
             line-height: 1.6;
         }
+        .reveal { --r-code-font: 'JetBrains Mono', ui-monospace, Menlo, Consolas, monospace; }
+        /* No ligatures: Java's -> and == must read as typed, not as arrows. */
+        .reveal code, .reveal pre, .reveal svg text { font-variant-ligatures: none; font-feature-settings: "liga" 0, "calt" 0; }
+        .reveal ::selection { background: var(--spring-green); color: var(--spring-heading); }
+
         .reveal h1, .reveal h2, .reveal h3, .reveal h4, .reveal h5 {
-            font-family: 'Work Sans', sans-serif;
+            font-family: 'Work Sans', 'Open Sans', BlinkMacSystemFont, -apple-system, sans-serif;
             color: var(--spring-heading);
             font-weight: 700;
             letter-spacing: -0.02em;
             text-transform: none;
+            text-wrap: balance;
             margin-bottom: 0.5em;
         }
-        .reveal h1 { font-size: 2.2em; line-height: 1.2; }
-        .reveal h2 { font-size: 1.5em; line-height: 1.3; margin-bottom: 0.8em; }
-        .reveal h3 { font-size: 1.15em; font-weight: 600; margin-bottom: 0.6em; }
+        .reveal h1 { font-size: 2.2em; line-height: 1.15; }
+        .reveal h2 { font-size: 1.5em; line-height: 1.25; margin-bottom: 0.7em; }
+        .reveal h3 { font-size: 1.15em; font-weight: 600; margin-bottom: 0.5em; }
 
         .reveal .slides { border-top: 5px solid var(--spring-green); }
+        /* In ?print-pdf the border would push the first page 5px past the sheet and add a blank page:
+           draw the rule on each printed page instead. */
+        html.reveal-print .reveal .slides { border-top: 0; }
+        html.reveal-print .reveal .pdf-page { border-top: 5px solid var(--spring-green); box-sizing: border-box; }
 
-        .reveal a { color: var(--spring-link); text-decoration: underline; }
+        .reveal a {
+            color: var(--spring-green-ink);
+            text-decoration: underline;
+            text-decoration-thickness: 0.08em;
+            text-underline-offset: 0.15em;
+        }
         .reveal a:hover { color: var(--spring-dark); }
 
+        /* Code is sized for the back row: 0.8em of 28px is about 22px on the 1200px canvas. */
         .reveal pre {
-            font-size: 0.55em;
+            font-size: 0.8em;
+            line-height: 1.35;
             width: 100%;
             border-radius: 8px;
             box-shadow: 0 8px 15px 0 rgba(0,0,0,0.15);
-            margin: 1em 0;
+            margin: 0.7em 0;
         }
         .reveal pre code {
-            max-height: 500px;
-            padding: 20px 24px;
+            font-size: 1em;
+            max-height: 600px;
+            padding: 18px 24px;
             word-wrap: break-word;
             white-space: pre-wrap;
+            color: var(--code-text);
             background: var(--spring-dark);
             border-radius: 8px;
         }
-        .reveal code {
+        /* reveal's theme sets highlighted code to white-space: pre; wrap instead of clipping. */
+        .reveal .code-wrapper code { white-space: pre-wrap; }
+        .reveal .hljs-meta { color: var(--code-annotation); }
+        .reveal .hljs-comment, .reveal .hljs-quote { color: var(--code-comment); }
+        .reveal :not(pre) > code {
             font-size: 0.9em;
-            color: var(--spring-green);
+            color: var(--inline-code-text);
             padding: 2px 6px;
-            background: #f0f4ff;
+            background: var(--inline-code-bg);
             border-radius: 3px;
         }
 
-        .reveal ul, .reveal ol { font-size: 0.85em; margin-bottom: 0.8em; }
+        /* Prose and lists sit at the 28px base so they read from the back row. */
+        .reveal ul, .reveal ol { font-size: 1em; margin-bottom: 0.8em; }
         .reveal li { margin-bottom: 0.3em; }
 
-        .reveal table { font-size: 0.75em; border-collapse: collapse; margin: 1em auto; }
+        .reveal table { font-size: 0.86em; border-collapse: collapse; margin: 0.8em auto; }
         .reveal table th {
             background: var(--spring-green);
-            color: #fff;
-            font-family: 'Work Sans', sans-serif;
+            color: var(--spring-heading);
+            font-family: 'Work Sans', 'Open Sans', sans-serif;
             font-weight: 700;
             text-transform: uppercase;
-            font-size: 0.85em;
+            font-size: 0.92em;
             letter-spacing: 0.05em;
-            padding: 12px 18px;
+            padding: 10px 18px;
             border: none;
         }
         .reveal table td {
-            padding: 10px 18px;
+            padding: 8px 18px;
             border-bottom: 1px solid var(--spring-border);
         }
-        .reveal table tr:nth-child(even) td { background: #f9fdf7; }
+        .reveal table tr:nth-child(even) td { background: var(--spring-tint); }
 
-        .reveal p { font-size: 0.9em; margin-bottom: 0.6em; }
-        .reveal section {
-            padding: 40px 0px;
+        .reveal p { font-size: 1em; line-height: 1.45; margin-bottom: 0.6em; }
+        .reveal .slides section {
+            box-sizing: border-box;
+            padding: 40px 60px;
             margin: 0 auto;
         }
+        .reveal .slides section.stack { padding: 0; }
 
         .reveal blockquote {
             font-size: 0.9em;
             border-left: 4px solid var(--spring-green);
-            background: #f9fdf7;
+            background: var(--spring-tint);
             padding: 12px 20px;
             border-radius: 0 5px 5px 0;
             box-shadow: none;
             font-style: italic;
-            margin: 0.8em 0;
+            margin: 0.8em auto;
             color: var(--spring-heading);
         }
 
-        .reveal section[data-background-color="#6db33f"] h1,
-        .reveal section[data-background-color="#6db33f"] h2,
-        .reveal section[data-background-color="#6db33f"] h3,
-        .reveal section[data-background-color="#6db33f"] p {
-            color: #fff;
-            text-shadow: 0 2px 6px rgba(0,0,0,0.3);
+        /* Spring green slides carry dark text: white on #6db33f is only 2.6:1. */
+        .reveal section[data-background-color="#6db33f"],
+        .reveal section[data-background-color="#6db33f"] :is(h1, h2, h3, p, li, strong, a) {
+            color: var(--spring-heading);
+            text-shadow: none;
         }
-        .reveal section[data-background-color="#6db33f"] a {
-            color: #fff;
-            text-decoration: underline;
+        .reveal section[data-background-color="#6db33f"] h1 { font-size: 2.6em; }
+        .reveal section[data-background-color="#6db33f"] p { font-size: 1.05em; }
+        .reveal section[data-background-color="#6db33f"] :not(pre) > code {
+            color: var(--spring-heading);
+            background: rgba(255,255,255,0.35);
         }
-        .reveal section[data-background-color="#191e1e"] h1,
-        .reveal section[data-background-color="#191e1e"] h2,
-        .reveal section[data-background-color="#191e1e"] h3,
-        .reveal section[data-background-color="#191e1e"] p {
+        .reveal section[data-background-color="#6db33f"] blockquote {
+            background: rgba(255,255,255,0.35);
+            border-left-color: var(--spring-heading);
+        }
+        .reveal section[data-background-color="#191e1e"] :is(h1, h2, h3, p) {
             color: #fff;
         }
 
+        /* A plan outcome (COMPLETED, TERMINATED, STUCK) is the headline of its slide. */
+        .reveal .outcome {
+            font-family: 'Work Sans', 'Open Sans', sans-serif;
+            font-weight: 700;
+            font-size: 2.6em;
+            line-height: 1;
+            letter-spacing: -0.02em;
+            color: var(--spring-heading);
+            margin: 0.25em 0 0.15em;
+        }
+        .reveal .outcome-detail {
+            font-family: 'Work Sans', 'Open Sans', sans-serif;
+            font-weight: 600;
+            font-size: 1em;
+            color: var(--spring-text);
+            margin-bottom: 0.4em;
+        }
+
+        /* Planner log: the lines the presenter points at are marked, the rest recede. */
+        .reveal pre.planner-log code { color: var(--code-comment); }
+        .reveal pre.planner-log mark {
+            background: none; color: var(--code-annotation); font-weight: 700;
+        }
+
+        /* Diagrams drawn as inline SVG */
+        .reveal svg.diagram { display: block; margin: 0.4em auto; max-width: 100%; height: auto; }
+
+        /* Before/after: the STUCK-to-replan moment */
+        .reveal .before-after {
+            width: 100%;
+            display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; gap: 28px;
+            margin: 0.6em 0 0.8em;
+        }
+        .reveal .before-after .state { padding: 28px 24px; border-radius: 10px; text-align: center; }
+        .reveal .before-after .state-stuck { background: var(--spring-tint); border: 2px dashed var(--spring-muted); }
+        .reveal .before-after .state-planned { background: var(--spring-green); }
+        .reveal .before-after .state-planned :is(.outcome, .outcome-detail, .state-label) { color: var(--spring-heading); }
+        .reveal .before-after .state-label { font-size: 0.8em; margin: 0; }
+        .reveal .before-after .outcome { font-size: 2.1em; }
+        .reveal .before-after .outcome-detail { margin: 0; font-size: 1em; line-height: 1.3; }
+        .reveal .before-after .state-change { display: flex; flex-direction: column; align-items: center; gap: 6px; color: var(--spring-green-ink); font-size: 0.75em; }
+        .reveal .before-after .state-change svg { width: 110px; height: auto; }
+
+        .reveal .closing-url { margin: 0.4em 0 0.1em; }
+        .reveal .closing-url a {
+            font-family: 'Work Sans', 'Open Sans', sans-serif; font-weight: 700;
+            font-size: 2em; letter-spacing: -0.02em; text-decoration-thickness: 0.06em;
+        }
+
+        /* The SRE worker's type chain, rendered from one definition (see the script below). */
+        .reveal .chain {
+            display: flex; align-items: stretch; justify-content: center; gap: 0;
+            margin: 0.5em 0 0.7em; font-family: 'Work Sans', 'Open Sans', sans-serif;
+        }
+        .reveal .chain .link { display: flex; align-items: center; }
+        .reveal .chain .node {
+            width: 150px; padding: 10px 6px; border-radius: 8px; text-align: center;
+            background: var(--spring-tint); border: 2px solid var(--spring-border-medium);
+            color: var(--spring-text); font-weight: 600; font-size: 0.75em; line-height: 1.15;
+            display: flex; flex-direction: column; justify-content: center;
+        }
+        .reveal .chain .phase {
+            display: block; font-size: 0.78em; font-weight: 700; letter-spacing: 0.06em;
+            text-transform: uppercase; color: var(--spring-green-ink); margin-bottom: 4px;
+        }
+        .reveal .chain .node.on { background: var(--spring-green); border-color: var(--spring-green); color: var(--spring-heading); }
+        .reveal .chain .node.on .phase { color: var(--spring-heading); }
+        .reveal .chain .arrow { width: 28px; height: 4px; background: var(--spring-muted); position: relative; }
+        .reveal .chain .arrow::after {
+            content: ""; position: absolute; right: -2px; top: -7px;
+            border-left: 12px solid var(--spring-muted); border-top: 9px solid transparent; border-bottom: 9px solid transparent;
+        }
+
+        /* Intro */
+        .reveal ul.bio { list-style: none; margin: 0; text-align: left; }
+        .reveal ul.bio li { margin-bottom: 0.45em; }
+        .reveal .promo-row {
+            display: flex; justify-content: center; align-items: flex-end; gap: 48px;
+        }
+        .reveal .promo-row figure { margin: 0; }
+        .reveal .promo-row img { display: block; height: 300px; width: auto; margin: 0 auto; }
+        .reveal .promo-row figcaption {
+            font-family: 'Work Sans', 'Open Sans', sans-serif;
+            font-weight: 600; font-size: 0.8em; margin-top: 0.5em; color: var(--spring-heading);
+        }
+        .reveal img.promo-banner { width: 100%; max-height: 180px; object-fit: contain; margin: 0 0 0.4em; }
+        .reveal img.family { max-height: 640px; width: auto; margin: 0 auto; border-radius: 6px; }
+
         .reveal strong { color: var(--spring-heading); font-weight: 700; }
         .reveal .progress { color: var(--spring-green); height: 5px; }
-        .reveal .controls { color: var(--spring-green); }
+        .reveal .controls { color: var(--spring-green-ink); }
+        /* Bottom-left, clear of the navigation arrows; dark ink reads on white and on Spring green. */
         .reveal .slide-number {
-            font-family: 'Work Sans', sans-serif;
-            font-size: 14px;
-            color: var(--spring-muted);
+            font-family: 'Work Sans', 'Open Sans', sans-serif;
+            font-size: 22px;
+            color: #262626;
             background: transparent;
-            right: 30px;
-            bottom: 30px;
+            left: 30px;
+            right: auto;
+            bottom: 18px;
         }
+        .reveal .slide-number a { color: inherit; text-decoration: none; }
+
+        /* ------------------------------------------------------------------
+           Live demo view (only when served by server.js). On a slide with
+           data-beat, the slide's title and takeaway sit above the live
+           terminal; everything else stays a normal slide.
+           ------------------------------------------------------------------ */
+        #live { position: fixed; inset: 0; z-index: 50; display: none; flex-direction: column;
+                background: var(--spring-dark); font-family: 'Open Sans', sans-serif; }
+        body.live-on #live { display: flex; }
+        #live-head { background: #fff; border-top: 6px solid var(--spring-green);
+                     padding: 2.2vh 4vw 2vh; display: grid; grid-template-columns: 1fr auto; gap: 3vw; align-items: center; }
+        #live-title { font-family: 'Work Sans', 'Open Sans', sans-serif; font-weight: 700; color: var(--spring-heading);
+                      font-size: 4.4vh; line-height: 1.15; letter-spacing: -0.02em; margin: 0; }
+        #live-takeaway { font-size: 3.1vh; line-height: 1.35; color: var(--spring-heading); margin: 0.8vh 0 0; }
+        #live-outcome { text-align: right; min-width: 18vw; }
+        #live-outcome .word { font-family: 'Work Sans', 'Open Sans', sans-serif; font-weight: 700; font-size: 6.4vh;
+                              line-height: 1; letter-spacing: -0.02em; color: var(--spring-heading); }
+        #live-outcome .word.COMPLETED { color: var(--spring-green-ink); }
+        #live-outcome .word.TERMINATED { color: #b42318; }
+        #live-outcome .word.STUCK, #live-outcome .word.TIMEOUT { color: #8a5a00; }
+        #live-outcome .detail { font-family: 'Work Sans', 'Open Sans', sans-serif; font-weight: 600; font-size: 2.6vh;
+                                color: var(--spring-text); margin-top: 0.6vh; }
+        #live-outcome .waiting { font-size: 2.4vh; color: var(--spring-muted); }
+        #live-term { flex: 1; min-height: 0; padding: 1.6vh 2.4vw 0; }
+        #live-foot { display: flex; justify-content: space-between; align-items: center; padding: 0.8vh 2.4vw 1.2vh;
+                     font-family: 'Work Sans', 'Open Sans', sans-serif; font-size: 1.7vh; color: #9aa4a4; }
+        #live-foot button { font: inherit; color: #c9d1d1; background: transparent; border: 1px solid #3b4545;
+                            border-radius: 6px; padding: 0.4vh 1vw; cursor: pointer; }
+        #live-foot button:hover { color: #fff; border-color: var(--spring-green); }
+        #live .xterm { height: 100%; }
+        /* Demo status, shown only inside the speaker view's slide previews. */
+        #demo-pill { position: fixed; top: 10px; right: 10px; z-index: 60; font: 600 14px 'Work Sans', sans-serif;
+                     padding: 4px 10px; border-radius: 999px; background: #262626; color: #fff; }
+        #demo-pill.ok { background: var(--spring-green); color: #111; }
+        #demo-pill.warn { background: #b42318; }
+        #live .xterm-viewport { background: transparent !important; }
 
         /* PDF-friendly: remove shadows on print */
         @media print {
@@ -211,12 +405,6 @@
                  data-charset="utf8">
         </section>
 
-        <section data-markdown="code-demo.md"
-                 data-separator="^\f"
-                 data-separator-vertical="^---"
-                 data-separator-notes="^Notes:"
-                 data-charset="utf8">
-        </section>
 
         <section data-markdown="why-jvm.md"
                  data-separator="^\f"
@@ -235,6 +423,22 @@
     </div>
 </div>
 
+<div id="live" aria-live="polite">
+    <header id="live-head">
+        <div>
+            <h2 id="live-title"></h2>
+            <p id="live-takeaway"></p>
+        </div>
+        <div id="live-outcome"></div>
+    </header>
+    <div id="live-term"></div>
+    <footer id="live-foot">
+        <span id="live-status">live demo</span>
+        <span><button id="live-static" type="button">show slide (L)</button>
+              <button id="live-restart" type="button">↻ restart demo</button></span>
+    </footer>
+</div>
+
 <script src="./reveal.js/dist/reveal.js"></script>
 <script src="./reveal.js/dist/plugin/markdown.js"></script>
 <script src="./reveal.js/dist/plugin/highlight.js"></script>
@@ -248,11 +452,155 @@
         center: true,
         hash: true,
         slideNumber: true,
+        // Left/right walk every slide, so a clicker cannot skip a vertical stack such as the demo.
+        navigationMode: 'linear',
         width: 1200,
         height: 800,
         margin: 0.02,
+        // PDF export (?print-pdf): one page per slide, every fragment shown.
+        pdfSeparateFragments: false,
         plugins: [ RevealMarkdown, RevealHighlight, RevealNotes ]
     });
+</script>
+<script>
+    // One definition of the SRE worker's type chain; slides opt in with
+    // <div class="chain" data-on="ServiceObservation RunbookAssessment"></div> (or data-on="all").
+    const SRE_CHAIN = [
+        { type: 'IncidentRequest', phase: 'Input' },
+        { type: 'ServiceObservation', phase: 'Observe' },
+        { type: 'RunbookAssessment', phase: 'Orient' },
+        { type: 'IncidentResponseReport', phase: 'Decide' },
+        { type: 'RunbookCheck', phase: 'Decide' },
+        { type: 'IncidentWorkflowReport', phase: 'Act' }
+    ];
+    function renderChains() {
+        document.querySelectorAll('.reveal .chain').forEach(el => {
+            const on = (el.dataset.on || '').split(/\s+/);
+            el.setAttribute('role', 'img');
+            el.setAttribute('aria-label', 'Type chain: ' + SRE_CHAIN.map(n => n.type).join(' to '));
+            el.innerHTML = SRE_CHAIN.map((n, i) => {
+                const lit = on.includes('all') || on.includes(n.type) ? ' on' : '';
+                const name = n.type.replace(/([a-z])([A-Z])/g, '$1<wbr>$2');
+                const node = `<span class="node${lit}"><span class="phase">${n.phase}</span>${name}</span>`;
+                return i === 0 ? node : `<span class="link"><span class="arrow"></span></span>${node}`;
+            }).join('');
+        });
+    }
+    Reveal.on('ready', () => { renderChains(); Reveal.layout(); });
+</script>
+<script type="text/javascript">
+    const startDate = new Date("12/20/2021");
+    const today = new Date();
+    const Difference_In_Time = today.getTime() - startDate.getTime();
+    const Difference_In_Days = Difference_In_Time / (1000 * 3600 * 24);
+
+    Reveal.addEventListener( 'ready', function() {
+        document.getElementById("the-number-of-days").innerHTML = '' + Math.ceil(Difference_In_Days);
+    }, false );
+</script>
+<script>
+    // Live demo client. Inactive under a plain static server (jwebserver):
+    // it only switches on when /healthz answers, i.e. when server.js serves the deck.
+    (function () {
+        const inSpeakerView = window.top !== window.self || /receiver/.test(location.search);
+        let state = { alive: false, ready: 0, beat: 0, target: 0, results: {} };
+        let ws = null, term = null, fit = null, enabled = false, forcedStatic = false;
+        const $ = (id) => document.getElementById(id);
+
+        function load(src) {
+            return new Promise((ok, fail) => { const s = document.createElement('script'); s.src = src; s.onload = ok; s.onerror = fail; document.head.appendChild(s); });
+        }
+
+        function connect() {
+            ws = new WebSocket(`ws://${location.host}/ws`);
+            ws.onmessage = (ev) => {
+                const msg = JSON.parse(ev.data);
+                if (msg.type === 'term') term.write(msg.data);
+                if (msg.type === 'reset') term.reset();
+                if (msg.type === 'state') { state = msg.state; render(); }
+            };
+            ws.onopen = () => { requestBeat(); render(); };
+            ws.onclose = () => { state.alive = false; render(); setTimeout(connect, 1500); };
+        }
+
+        function currentBeat() {
+            const slide = Reveal.getCurrentSlide();
+            const n = slide && Number(slide.getAttribute('data-beat'));
+            return n > 0 ? n : 0;
+        }
+
+        // Arriving on a beat slide asks for that beat. Only the main window asks,
+        // never the speaker view's preview frames.
+        function requestBeat() {
+            const n = currentBeat();
+            if (n && !inSpeakerView && ws && ws.readyState === 1) ws.send(`goto:${n}`);
+        }
+
+        function renderPill() {
+            if (!inSpeakerView) return;
+            let pill = $('demo-pill');
+            if (!pill) { pill = document.createElement('div'); pill.id = 'demo-pill'; document.body.appendChild(pill); }
+            const ok = state.alive && state.ready >= 1;
+            pill.className = !state.alive ? 'warn' : ok || state.beat > 0 ? 'ok' : '';
+            pill.textContent = !state.alive ? 'demo: not running'
+                : state.beat > 0 ? `demo: step ${state.beat}${state.ready > state.beat ? " · next ready" : ""}`
+                : state.ready >= 1 ? 'demo: ready' : 'demo: preparing…';
+        }
+
+        function render() {
+            renderPill();
+            const n = currentBeat();
+            // A beat that already ran and was left behind shows its slide again.
+            const live = enabled && !forcedStatic && n > 0 && state.alive && n >= state.beat;
+            document.body.classList.toggle('live-on', live);
+            if (!live) return;
+            const slide = Reveal.getCurrentSlide();
+            const h = slide.querySelector('h2, h1');
+            $('live-title').textContent = h ? h.textContent : '';
+            $('live-takeaway').textContent = slide.getAttribute('data-takeaway') || '';
+            const r = state.results[n];
+            if (r && state.beat === n) {
+                // An escalation is the headline even when the plan completed.
+                const word = r.escalate ? 'ESCALATED' : r.status === 'TIMEOUT' ? 'TOO SLOW' : r.status;
+                const detail = r.escalate ? `runbook check ${r.withinRunbook ?? '—'} · a human decides`
+                    : r.budget ? `${r.actions} of ${r.budget} actions` : '';
+                $('live-outcome').innerHTML = `<div class="word ${r.escalate ? 'TERMINATED' : r.status}">${word}</div>` +
+                    (detail ? `<div class="detail">${detail}</div>` : '');
+            } else if (state.beat < n) {
+                $('live-outcome').innerHTML = state.beat === n - 1 || state.ready === n ? '' : '<div class="waiting">finishing the previous step…</div>';
+            } else {
+                $('live-outcome').innerHTML = '';
+            }
+            $('live-status').textContent = state.beat >= n ? `live · step ${n}` : `live · step ${n} starting`;
+            requestAnimationFrame(() => { try { fit.fit(); } catch (_) {} });
+        }
+
+        async function start() {
+            try { const r = await fetch('/healthz', { cache: 'no-store' }); if (!r.ok) return; } catch (_) { return; }
+            const css = document.createElement('link'); css.rel = 'stylesheet'; css.href = '/vendor/xterm.css'; document.head.appendChild(css);
+            await load('/vendor/xterm.js'); await load('/vendor/addon-fit.js');
+            term = new Terminal({
+                disableStdin: true, cursorBlink: false, scrollback: 4000, convertEol: false,
+                fontFamily: "'JetBrains Mono', Menlo, monospace", fontSize: Math.max(16, Math.round(innerHeight / 38)), lineHeight: 1.15,
+                theme: { background: '#191e1e', foreground: '#e8ecec', green: '#8fd16a', cyan: '#7fd4e6', yellow: '#e6c75f', red: '#ff8a80', brightWhite: '#ffffff' },
+            });
+            fit = new FitAddon.FitAddon();
+            term.loadAddon(fit);
+            term.open($('live-term'));
+            term.onResize(({ cols, rows }) => { if (!inSpeakerView && ws && ws.readyState === 1) ws.send(`resize:${cols},${rows}`); });
+            addEventListener('resize', () => { term.options.fontSize = Math.max(16, Math.round(innerHeight / 38)); try { fit.fit(); } catch (_) {} });
+            enabled = true;
+            Reveal.on('slidechanged', () => { requestBeat(); render(); });
+            // Clicking anywhere on the live view advances, like the clicker.
+            $('live').addEventListener('click', (e) => { if (!e.target.closest('button')) Reveal.next(); });
+            $('live-restart').addEventListener('click', () => ws && ws.send('restart'));
+            $('live-static').addEventListener('click', () => { forcedStatic = true; render(); });
+            Reveal.addKeyBinding({ keyCode: 76, key: 'L', description: 'Toggle live demo view' }, () => { forcedStatic = !forcedStatic; render(); });
+            connect();
+        }
+
+        if (Reveal.isReady()) start(); else Reveal.on('ready', start);
+    })();
 </script>
 </body>
 </html>

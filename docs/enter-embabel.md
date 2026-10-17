@@ -1,8 +1,17 @@
-## Enter Embabel
+<!-- .slide: data-background-color="#6db33f" -->
+
+# Enter Embabel
+
+Strong types, OODA loops, and goal-oriented planning on the JVM.
+
+Notes:
+- Enter Embabel. This is the framework that checks every box on that list.
+
+---
+
+## What Embabel Is
 
 **Embabel** is a JVM-based framework from Rod Johnson (Spring creator) designed to bring **discipline** to agentic AI.
-
-Embabel gives **digital workers** a way to plan and act through Java domain types.
 
 Core philosophy:
 
@@ -11,14 +20,20 @@ Core philosophy:
 - **GOAP**: Goal-Oriented Action Planning (borrowed from game AI)
 - **Composability**: Spring components become agent capabilities
 
-> The JVM brings reliability, observability, and familiar production operations.
+Notes:
+- Embabel comes from Rod Johnson. Yes, the Spring guy.
+- Most agent frameworks are Python-first. Embabel is built for the JVM and for people like us: strongly typed, Spring-native.
+- Four ideas, and they're the whole talk.
+- Strong typing: your domain model is the contract.
+- OODA: a decision loop. GOAP: a planner. Composability: Spring components become capabilities.
+- I'll make the JVM case at the end, after you've seen it run.
 
 ---
 
 ## OODA Loops: The Decision Cycle
 
 
-<svg style="max-width: 400px; margin: 20px auto; display: block;" viewBox="0 0 500 500" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="OODA decision cycle">
+<svg style="max-width: 540px; margin: 0 auto; display: block;" viewBox="0 0 500 500" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="OODA decision cycle">
   <defs>
     <marker id="ooda-arrowhead" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto">
       <path d="M 0 0 L 10 5 L 0 10 z" fill="#6db33f"/>
@@ -27,12 +42,12 @@ Core philosophy:
 
   <!-- Four equal nodes, positioned at the cardinal points of the circle. -->
   <g fill="#6db33f">
-    <rect x="190" y="30" width="120" height="120" rx="8"/>
-    <rect x="350" y="190" width="120" height="120" rx="8"/>
-    <rect x="190" y="350" width="120" height="120" rx="8"/>
-    <rect x="30" y="190" width="120" height="120" rx="8"/>
+    <rect x="180" y="20" width="140" height="140" rx="8"/>
+    <rect x="340" y="180" width="140" height="140" rx="8"/>
+    <rect x="180" y="340" width="140" height="140" rx="8"/>
+    <rect x="20" y="180" width="140" height="140" rx="8"/>
   </g>
-  <g fill="white" font-size="17" font-weight="bold" text-anchor="middle" dominant-baseline="middle">
+  <g fill="#111" font-family="'Work Sans', 'Open Sans', sans-serif" font-size="26" font-weight="700" text-anchor="middle" dominant-baseline="middle">
     <text x="250" y="90">OBSERVE</text>
     <text x="410" y="250">ORIENT</text>
     <text x="250" y="410">DECIDE</text>
@@ -41,45 +56,47 @@ Core philosophy:
 
   <!-- Identical clockwise quarter-turns keep the cycle visually balanced. -->
   <g fill="none" stroke="#6db33f" stroke-width="3" marker-end="url(#ooda-arrowhead)">
-    <path d="M 310 90 C 390 90, 410 140, 410 190"/>
-    <path d="M 410 310 C 410 390, 360 410, 310 410"/>
-    <path d="M 190 410 C 110 410, 90 360, 90 310"/>
-    <path d="M 90 190 C 90 110, 140 90, 190 90"/>
+    <path d="M 320 90 C 390 90, 410 120, 410 176"/>
+    <path d="M 410 320 C 410 390, 380 410, 324 410"/>
+    <path d="M 180 410 C 110 410, 90 380, 90 324"/>
+    <path d="M 90 180 C 90 110, 120 90, 176 90"/>
   </g>
 </svg>
 
-Agent cycles through **Observe → Orient → Decide → Act** repeatedly until goal met.
+The worker repeats **Observe → Orient → Decide → Act** until the goal is met.
 
-The cycle turns `prompt → response` into **continuous reasoning with domain knowledge**.
+Notes:
+- OODA comes from John Boyd, a fighter pilot. Observe, orient, decide, act. Repeat.
+- Why a loop and not a chain? A chain runs once and hopes. A loop looks at the world again after every move.
+- For an agent: observe the system, orient with what you know, decide what to do, act. Then check again.
+- It runs until the goal is met, or until something tells it to stop.
 
 ---
 
-## GOAP: Goal-Oriented Action Planning
+## GOAP: Work Backward from the Goal
 
-Borrowed from game AI, GOAP agents work backward from goals:
+Borrowed from game AI. For the OutOfMemory incident, the planner asks **"What do I need?"**
 
-### Production Example: SRE Incident Response
-
-```
-Alert: java.lang.OutOfMemoryError: Java heap space
-  heap_usage=95%, gc_pause=5000ms
-  ↓
-Goal: "An incident report ready for human approval"
-  ↓ What does the report require?
-  - ServiceObservation      ✗ ← observe the live services first
-  - RunbookAssessment       ✗ ← needs the observation
-  - IncidentResponseReport  ✗ ← needs the assessment
-  ↓ After observing:
-  - Found: which services are unavailable right now
-  ↓ Still required:
-  - Apply the OOM runbook   ✗ ← do this next
-  - Ask the model to reason inside the runbook ✗
+```text
+Goal  IncidentWorkflowReport              ✗
+        needs RunbookCheck                ✗
+          needs IncidentResponseReport    ✗
+            needs RunbookAssessment       ✗
+              needs ServiceObservation    ✗
+                needs IncidentRequest     ✓  ← the OOM alert
 ```
 
-The worker works backward from the goal: **"What do I need to reach it?"**
+Then it runs the plan forward:
 
-Embabel tracks subgoals, dependencies, and execution order automatically.
+```text
+observeServices → applyRunbook → analyzeIncident
+                → checkRecommendation → prepareReport
+```
 
-This requires **investigation, metrics, and domain knowledge**.
-
-The plan can adapt as each action adds new information.
+Notes:
+- GOAP: Goal-Oriented Action Planning. It comes from game AI; it's how game characters figure out what to do.
+- Every action has preconditions, what it needs, and effects, what it produces.
+- The planner starts at the goal and works backward. Look at the tree:
+- The report needs a check. The check needs a response. The response needs an assessment. Down to the one thing we have: the OOM alert.
+- Then it runs the plan forward, and replans after every step in case the world changed.
+- We never wrote that order. The planner found it.

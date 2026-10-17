@@ -34,3 +34,12 @@ Thumbs.db
 # Logs
 logs/
 *.log
+
+# Node (live demo deck)
+node_modules/
+__pycache__/
+
+# Local agent and design-tool state
+.claude/
+.impeccable/
+PRODUCT.md

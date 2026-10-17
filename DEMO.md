@@ -20,12 +20,30 @@ Spring Boot starts the compose services and waits for their health checks. Embab
 |---|---|
 | `dad-joke --about java` | Plain `ChatClient` call; warms the model |
 | `docker-compose-status` | Live compose state as typed JSON |
-| `oom-incident` | Embabel plans and runs the SRE agent: 4 actions, `COMPLETED` |
+| `oom-incident` | Embabel plans and runs the SRE agent: 5 actions, `COMPLETED` |
 | `oom-incident --budget 2` | The action budget stops the agent: `TERMINATED` |
+| `injected-incident` | Same agent with a prompt injection in the logs; the runbook and approval requirement stay in Java |
 | `latency-incident` | Same agent, different runbook branch |
 | `stored-analyses` | Code analyses stored in Redis |
 | `safe-quick-win` | Coding agent on the same `AgentPlatform` |
 | `analyze-code --file <path>` | LLM code review saved to Redis |
+
+## In the Deck
+
+The demo steps are spread through the talk, each right after the slide that explains it:
+
+| STEP | SECTION | AFTER | RUNS |
+|---|---|---|---|
+| 1 | From Hello World to Production | The Demo We All Know | `dad-joke --about java` |
+| 2 | Spring Beans as Actions | One Annotation Away | `stored-analyses`, `safe-quick-win` |
+| 3 | An SRE Digital Worker | Observe and Orient Are Spring Actions | `docker-compose-status` |
+| 4 | From Imperative to Goal-Oriented | Every Execution Explains Itself | `oom-incident` |
+| 5 | From Imperative to Goal-Oriented | The Loop Has a Hard Stop | `oom-incident --budget 2` |
+| 6 | DICE | Domain Rules Survive Model Failure | `injected-incident` |
+| 7 | Why the JVM | Advantage 1: Types Are the Plan | patch 01, `javac`, `oom-incident`: `STUCK` |
+| 8 | Why the JVM | Live: Ask for the Impossible | patch 02, `javac`, `oom-incident`: 6 actions |
+
+`./run.sh` runs every step from the deck, one click per slide, including the live coding: the deck applies `demo/patches/01-require-canary-plan.patch` and `02-add-plan-canary-action.patch` and recompiles with `javac`. The steps by hand, for rehearsal or a demo without the deck:
 
 ## Live Coding: From STUCK to a New Plan
 
@@ -50,6 +68,7 @@ public IncidentWorkflowReport prepareReport(
         ServiceObservation observation,
         RunbookAssessment assessment,
         IncidentResponseReport response,
+        RunbookCheck check,
         CanaryPlan canary) {
 ```
 
@@ -77,10 +96,12 @@ Restart the shell and run `oom-incident`. Expected:
 
 ```json
 "status" : "COMPLETED",
-"actions" : [ "observeServices", "applyRunbook", "analyzeIncident", "planCanary", "prepareReport" ]
+"actions" : [ "observeServices", "applyRunbook", "analyzeIncident", "checkRecommendation", "planCanary", "prepareReport" ]
 ```
 
 No routing code changed: the new type created a new path to the goal.
+
+Keep `planCanary` but drop the `canary` parameter and the run is back to five actions: the planner skips an action the goal doesn't need. That's the claim on "The Planner Chooses the Path".
 
 ### Reset
 
@@ -88,4 +109,9 @@ Delete `CanaryPlan.java`, remove the `canary` parameter and the `planCanary` act
 
 ## Tests
 
-`./mvnw test` covers the three agent outcomes on Embabel's real planner without Spring or a model: `COMPLETED`, `TERMINATED` by the budget, and `STUCK` with no path to the goal.
+`./mvnw test` runs without a model:
+
+- `AgentRunnerTest`: the three agent outcomes on Embabel's real planner, without Spring: `COMPLETED`, `TERMINATED` by the budget, and `STUCK` with no path to the goal
+- `SreRunbookTest`: the OutOfMemory runbook and its approval requirement
+- `RunbookCheckerTest`: the Jev check: not configured, escalate, pass, and fail closed when Jev is unavailable
+- `DockerComposeServiceTest`: parsing `docker compose ps` JSON, both one object per line and an array

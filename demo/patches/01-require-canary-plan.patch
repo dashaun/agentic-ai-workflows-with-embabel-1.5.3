@@ -1,0 +1,32 @@
+diff --git a/src/main/java/com/embabel/demo/domain/CanaryPlan.java b/src/main/java/com/embabel/demo/domain/CanaryPlan.java
+new file mode 100644
+index 0000000..424f1a5
+--- /dev/null
++++ b/src/main/java/com/embabel/demo/domain/CanaryPlan.java
+@@ -0,0 +1,4 @@
++package com.embabel.demo.domain;
++
++public record CanaryPlan(String change, int trafficPercent, boolean requiresApproval) {
++}
+diff --git a/src/main/java/com/embabel/demo/sre/SreIncidentWorker.java b/src/main/java/com/embabel/demo/sre/SreIncidentWorker.java
+index 3fa40fa..bb6dacf 100644
+--- a/src/main/java/com/embabel/demo/sre/SreIncidentWorker.java
++++ b/src/main/java/com/embabel/demo/sre/SreIncidentWorker.java
+@@ -5,6 +5,7 @@ import com.embabel.agent.api.annotation.Action;
+ import com.embabel.agent.api.annotation.Agent;
+ import com.embabel.agent.api.common.OperationContext;
+ import com.embabel.agent.core.ActionRetryPolicy;
++import com.embabel.demo.domain.CanaryPlan;
+ import com.embabel.demo.domain.DockerComposeStatus;
+ import com.embabel.demo.domain.IncidentRequest;
+ import com.embabel.demo.domain.IncidentResponseReport;
+@@ -114,7 +115,8 @@ public class SreIncidentWorker {
+             ServiceObservation observation,
+             RunbookAssessment assessment,
+             IncidentResponseReport response,
+-            RunbookCheck check) {
++            RunbookCheck check,
++            CanaryPlan canary) {
+         return new IncidentWorkflowReport(
+                 "Produce a safe incident response",
+                 request.incidentType(),

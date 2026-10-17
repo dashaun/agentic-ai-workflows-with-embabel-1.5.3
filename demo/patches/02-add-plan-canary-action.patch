@@ -1,0 +1,15 @@
+diff --git a/src/main/java/com/embabel/demo/sre/SreIncidentWorker.java b/src/main/java/com/embabel/demo/sre/SreIncidentWorker.java
+--- a/src/main/java/com/embabel/demo/sre/SreIncidentWorker.java
++++ b/src/main/java/com/embabel/demo/sre/SreIncidentWorker.java
+@@ -105,6 +105,11 @@
+         return runbookChecker.check(assessment, response);
+     }
+ 
++    @Action(description = "Plan a canary to validate the remediation", readOnly = true)
++    public CanaryPlan planCanary(RunbookAssessment assessment) {
++        return new CanaryPlan(assessment.recommendedAction(), 5, true);
++    }
++
+     @Action(
+             description = "Create the approval-required incident report",
+             readOnly = true,

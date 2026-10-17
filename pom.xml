@@ -53,6 +53,14 @@
             <artifactId>spring-boot-starter-web</artifactId>
         </dependency>
 
+        <!-- Embabel builds its Ollama client with a plain RestClient.builder(), which prefers
+             Apache HttpClient 5 when present. Without it, Reactor Netty's 10s read timeout cuts
+             off slow CPU inference and Spring AI retries pile up work on Ollama. -->
+        <dependency>
+            <groupId>org.apache.httpcomponents.client5</groupId>
+            <artifactId>httpclient5</artifactId>
+        </dependency>
+
         <!-- Redis-backed repository for persisted code analyses. -->
         <dependency>
             <groupId>org.springframework.boot</groupId>

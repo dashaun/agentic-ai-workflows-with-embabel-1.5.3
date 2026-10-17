@@ -1,0 +1,15 @@
+#!/usr/bin/env bash
+# Runs one Spring Shell command non-interactively from target/classes, so a
+# live-coding patch only needs javac (about a second), not a jar rebuild.
+# Compose is start-only: the stack keeps running between commands.
+cd "$(dirname "$0")/.."
+exec java \
+  -Dspring.docker.compose.lifecycle-management=start-only \
+  -Dspring.shell.interactive.enabled=false \
+  -Dspring.main.banner-mode=off \
+  -Dspring.devtools.restart.enabled=false \
+  -Dspring.ai.ollama.base-url="${OLLAMA_URL:-http://localhost:11434}" \
+  -Dspring.http.reactiveclient.read-timeout=120s \
+  -Dspring.http.clients.read-timeout=120s \
+  -cp "target/classes:$(cat target/demo.classpath)" \
+  com.embabel.demo.EmbabelShellDemoApplication "$@"

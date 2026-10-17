@@ -1,0 +1,20 @@
+{
+  "name": "agentic-ai-workflows-with-embabel-deck",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Presenter-driven deck: the live Embabel demo runs in a terminal docked under the slides, one click per step",
+  "main": "server.js",
+  "scripts": {
+    "postinstall": "chmod +x node_modules/node-pty/prebuilds/*/spawn-helper 2>/dev/null || true",
+    "start": "node server.js",
+    "smoke": "node scripts/smoke-test.js"
+  },
+  "license": "Apache-2.0",
+  "type": "commonjs",
+  "dependencies": {
+    "@xterm/addon-fit": "^0.11.0",
+    "@xterm/xterm": "^5.5.0",
+    "node-pty": "^1.1.0",
+    "ws": "^8.22.0"
+  }
+}
